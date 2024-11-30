@@ -20,7 +20,7 @@
 
 title: Getting to know C++
 description: >- # this means to ignore newlines until "baseurl:"
-  On this blog I want to write about quirks and other things I found out about the C++ language.
+  Learning and writing about the quirks of C++
 baseurl: "" # the subpath of your site, e.g. /blog
 url: https://MilMajerus.github.io # the base hostname & protocol for your site, e.g. http://example.com
 
