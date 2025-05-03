@@ -1,0 +1,233 @@
+---
+layout: post
+title:  "Boost"
+date:   2024-05-03 20:17:00 +0100
+---
+The Boost library collection may be the library to rule all libraries. Containing a total of 164 libraries covering a wide range of topics such as image processing, multiprocessing, smart pointers and much more.
+It is free, open-source, portable and widely used.
+# What is Boost?
+Boost was started in 1998 emphasizing "libraries that work well with the C++ Standard Library". and aiming to "establish existing practice" with the goal of eventual standardization. You can thus think of Boost as a collection of feature that the STL may one day have.
+In fact, this has already happened in part, 10 Boost libraries were incorporated into the Technical Report 1 (TR1), aka the C++11 standard, and the C++17 standard. 
+
+## Highlights
+- A permissive license: the Boost libraries are guaranteed to remain available to you.
+- Proven stability: Their widespread use ensures that Boost libraries are regularly tested.
+- Header-Only: Most libraries are header-only, requiring no precompilation, though some (like Boost.Filesystem) need separate linking.
+
+# Popular Libraries
+## Smart Ptr
+If you know anything about C++, you know about RAII. In modern C++ you are encouraged to use so-called smart-pointers to, using RAII and destructors, manage your memory allocations. What you might not know is the origin of those smart-pointers: Boost.
+
+Included in TR1, the `Smart Ptr` library provided the now-knows `shared_ptr`, `unique_ptr` and `scoped_ptr` allowing for
+```cpp
+int * data = new int(3);
+delete data;
+```
+to become 
+```cpp
+unique_ptr<int> data(new int(3));
+```
+without you having to take care of deallocating the memory. 
+
+The library also provides other pointers not present yet in the standard such as `intrusive_ptr`.
+## Filesystem
+Working with file-systems can be annoying and platform specific. Boost.Filesystem provides a cross-platform way to manipulate files, directories and paths
+```cpp
+filesystem::path dir_path("/path/to/directory");
+if (filesystem::exists(dir_path)) {
+    for (const auto& entry : filesystem::directory_iterator(dir_path)) {
+        std::cout << entry.path() << std::endl;
+    }
+}
+```
+You may be wondering why use this if there is `std::filesystem`, well after C++17 that is true, but take a guess where that came from.
+
+# Asio
+Asio (Asynchronous I/O) provides, as the name implies, asynchronous I/O but also low-level networking primites.
+```cpp
+io_context io;
+tcp::acceptor acceptor(io, tcp::endpoint(tcp::v4(), 1234));
+tcp::socket socket(io);
+acceptor.accept(socket);
+
+std::string message = "Hello from Boost.Asio!";
+boost::system::error_code ec;
+write(socket, buffer(message), ec);
+if (!ec) std::cout << "Message sent!" << std::endl;
+
+```
+
+## Beast
+Want to connect to the web? Don't want to reinvent the wheel using Asio? Sure!
+```cpp
+beast::tcp_stream stream(boost::asio::io_context{});
+stream.connect("www.example.com", "80");
+
+http::request<http::string_body> req(http::verb::get, "/", 11);
+req.set(http::field::host, "www.example.com");
+http::write(stream, req);
+
+beast::flat_buffer buffer;
+http::response<http::dynamic_body> res;
+http::read(stream, buffer, res);
+std::cout << "Response: " << res << std::endl;
+```
+Don't mind the non-descriptive name though.
+
+
+## JSON
+Yes, everyone's favourite format needs support in C++ as well and Boost.JSON provides serialization and deserialization.
+```cpp
+json::value jv = {
+    {"name", "Alice"},
+    {"age", 30},
+    {"skills", {"C++", "Boost"}}
+};
+jv["age"] = 31;
+std::cout << jv << std::endl;
+```
+
+## Thread
+Yes, `std::thread` before it was `std::thread` but with a few non-standard features. 
+```cpp
+boost::mutex mtx;
+
+void worker() {
+    boost::lock_guard<boost::mutex> lock(mtx);
+    std::cout << "Thread ID: " << boost::this_thread::get_id() << std::endl;
+}
+
+int main() {
+    boost::thread t1(worker), t2(worker);
+    t1.join(); t2.join();
+}
+```
+
+## Optional
+The C++17 one's predecessor. Allows you to represent values that may or may not be there while avoiding `nullptr`
+```cpp
+
+optional<int> divide(int a, int b) {
+    if (b == 0) return none;
+    return a / b;
+}
+
+int main() {
+    auto result = divide(10, 2);
+    if (result) std::cout << *result << std::endl;
+}
+```
+Note the `if(result)` checking whether the value is `none`.
+
+## Geometry
+Re-implementing a `Point` struct or figuring out the area of a polygon is repetitive and error-prone, so don't.
+```cpp
+#include <boost/geometry/geometries/polygon.hpp>
+
+using Polygon = bg::model::polygon<Point>;
+
+int main() {
+    Polygon poly;
+    bg::append(poly, {Point(0, 0), Point(0, 5), Point(5, 5), Point(5, 0), Point(0, 0)});
+    std::cout << "Area: " << bg::area(poly) << std::endl; // Output: 25.0
+
+    Point test(2, 2);
+    bool inside = bg::within(test, poly);
+    std::cout << "Point inside? " << std::boolalpha << inside << std::endl; // true
+}
+```
+
+## Graph 
+Yes, no re-implementing graphs again, seems like a no-brainer to me.
+```cpp
+using Graph = boost::adjacency_list<
+    boost::vecS,         // Edge storage (vector)
+    boost::vecS,         // Vertex storage (vector)
+    boost::undirectedS,  // Undirected graph
+    std::string          // Vertex property: name
+>;
+
+int main() {
+    Graph g;
+
+ 
+    auto alice = boost::add_vertex("Alice", g);
+    auto bob = boost::add_vertex("Bob", g);
+    auto carol = boost::add_vertex("Carol", g);
+
+
+    boost::add_edge(alice, bob, g);
+    boost::add_edge(bob, carol, g);
+
+
+    std::cout << "Vertices:\n";
+    for (auto v : boost::make_iterator_range(boost::vertices(g))) {
+        std::cout << g[v] << std::endl; // Output: Alice, Bob, Carol
+    }
+
+    std::cout << "\nEdges:\n";
+    for (auto e : boost::make_iterator_range(boost::edges(g))) {
+        auto src = boost::source(e, g);
+        auto tgt = boost::target(e, g);
+        std::cout << g[src] << " -- " << g[tgt] << std::endl;
+    }
+}
+```
+or redoing dijkstra
+```cpp
+using WeightedGraph = boost::adjacency_list<
+    boost::vecS, boost::vecS, boost::undirectedS,
+    std::string,  // Vertex property
+    int           // Edge property (weight)
+>;
+
+int main() {
+    WeightedGraph g;
+    auto alice = boost::add_vertex("Alice", g);
+    auto bob = boost::add_vertex("Bob", g);
+    auto carol = boost::add_vertex("Carol", g);
+
+    boost::add_edge(alice, bob, 5, g);
+    boost::add_edge(bob, carol, 10, g);
+
+    std::vector<int> distances(boost::num_vertices(g));
+    boost::dijkstra_shortest_paths(
+        g, alice,
+        boost::distance_map(&distances[0])
+    );
+
+    std::cout << "Distance to Carol: " << distances[carol] << std::endl;
+}
+```
+
+## Spirit
+Parsing using PEG (Parsing Expression Grammar) to either parse using `qi` 
+```cpp
+std::string input = "1,2,3,4";
+std::vector<int> numbers;
+qi::parse(input.begin(), input.end(), qi::int_ % ',', numbers);
+for (int n : numbers) std::cout << n << " ";
+```
+or generate using `karma`
+```cpp
+std::vector<int> nums = {1, 2, 3};
+std::string json;
+karma::generate(std::back_inserter(json), "[" << (karma::int_ % ",") << "]", nums);
+std::cout << json;
+```
+
+## MPL and MP11
+If you want to dabble in some compile-time meta-programming do check out MPL if you are stuck in pre-C++11 land
+```cpp
+using Seq = mpl::vector<mpl::int_<1>, mpl::int_<2>>;
+using Result = mpl::tra
+```
+or the more modern MP11 if you have at least C++11
+```cpp
+using List = mp_list<int, float, double>;
+using Size = mp_size<List>; // Size::value == 3
+using Second = mp_at_c<List, 1>; // float
+```
+
+# Conclusion
+While I could go on and cover all 164 libraries, I think my point is clear. If you ever need some common tool, see if Boost has a library for it (it probably does). There is a reason it is used all over the place and almost any domain so don't shy away, avoid reinventing the wheel and download the couple gigabytes of Boost.
