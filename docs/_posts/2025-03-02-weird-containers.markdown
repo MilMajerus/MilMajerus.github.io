@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Weird Containers"
-date:   2024-03-02 21:43:12 +0100
+date:   2025-03-02 21:43:12 +0100
 ---
 In many ways C++, the language, is weird. Naturally, this carries over into C++, the library. Over its long history, many mistakes have been made, and many fixes have been created, but backwards compatibility lets us use them all.
 

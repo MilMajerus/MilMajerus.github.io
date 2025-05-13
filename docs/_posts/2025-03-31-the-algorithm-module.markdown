@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Classes and Templates"
+title:  "The Algorithm module"
 date:   2025-03-31 21:40:00 +0100
 ---
 
