@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Boost"
-date:   2024-05-03 20:17:00 +0100
+date:   2025-05-03 20:17:00 +0100
 ---
 The Boost library collection may be the library to rule all libraries. Containing a total of 164 libraries covering a wide range of topics such as image processing, multiprocessing, smart pointers and much more.
 It is free, open-source, portable and widely used.
