@@ -220,7 +220,8 @@ std::cout << json;
 If you want to dabble in some compile-time meta-programming do check out MPL if you are stuck in pre-C++11 land
 ```cpp
 using Seq = mpl::vector<mpl::int_<1>, mpl::int_<2>>;
-using Result = mpl::tra
+using List = push_back<Seq, mpl::int_<3>>::type;
+BOOST_MAP_ASSERT(( is_same< at_c<List, 3>::type, mpl::int_<3>>));
 ```
 or the more modern MP11 if you have at least C++11
 ```cpp
